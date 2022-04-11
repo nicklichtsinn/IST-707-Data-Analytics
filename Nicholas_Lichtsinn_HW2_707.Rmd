@@ -1,0 +1,70 @@
+---
+title: "Nicholas_Lichtsin_HW2_707"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+data <- read.csv("/Users/nickl/Documents/Syracuse/IST 707 - Data Analytics/data-storyteller.csv", na.string = c(""))
+
+# Examining the data
+str(data)
+
+summary(data)
+```
+
+```{r setup}
+#Visualizations
+hist(data$Behind..1.5)
+
+#Adding new column to show number of students in each section
+data$total_students <- (data$Very.Ahead..5+data$Middling..0+data$Behind..1.5+data$More.Behind..6.10+data$Very.Behind..11+data$Completed)
+
+#looking at data with added column
+str(data)
+
+# Removing School as non-numeric data
+num_data <- subset(data, select=-c(School))
+
+# Summing columns
+students_sums <- colSums(num_data)
+
+#histogram
+hist(students_sums)
+
+#Scatter Plot of column sums
+plot(students_sums)
+
+
+
+```
+
+```{r setup}
+# Aggregating Sum by school for each column
+agg_sum <- aggregate(cbind(Completed,Very.Ahead..5,Middling..0,Behind..1.5,More.Behind..6.10,Very.Behind..11) ~ School, data=data, FUN=sum)
+
+# adding a total colum
+agg_sum$total_students <- (agg_sum$Completed+agg_sum$Very.Ahead..5+agg_sum$Middling..0+agg_sum$Behind..1.5+agg_sum$More.Behind..6.10+agg_sum$Very.Behind..11)
+
+# Aggregating by mean
+agg_mean <- aggregate(cbind(Completed,Very.Ahead..5,Middling..0,Behind..1.5,More.Behind..6.10,Very.Behind..11) ~ School, data=data, FUN=mean)
+
+
+```
+
+
+```{r setup}
+# creating percentages for each school
+Completed <- agg_sum$Completed/agg_sum$total_students
+VA <- agg_sum$Very.Ahead..5/agg_sum$total_students
+M <- agg_sum$Middling..0/agg_sum$total_students
+B <- agg_sum$Behind..1.5/agg_sum$total_students
+MB <- agg_sum$More.Behind..6.10/agg_sum$total_students
+VB <- agg_sum$Very.Behind..11/agg_sum$total_students
+
+
+perc <- setNames(data.frame(matrix(ncol = 5, nrow =6)), c("A","B","C","D","E"))
+perc <- rbind(Completed,VA,M,B,MB,VB)
+colnames(perc) <- c("A","B","C","D","E")
+```
